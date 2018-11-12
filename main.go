@@ -13,6 +13,8 @@ const IN, OUT, BUY, SELL, BUYMAGIC, SELLMAGIC string = "0", "1", "0", "1", "888"
 
 var Eain sync.Map  //存放mt5发送过来的买入或者卖出单子
 var Eaout sync.Map //存放mt5发送过来的买入或者卖出单子
+var orders []byte
+
 func mt5(w http.ResponseWriter, req *http.Request) {
 
 	body, err := ioutil.ReadAll(req.Body)
@@ -46,6 +48,21 @@ func mt5(w http.ResponseWriter, req *http.Request) {
 		return true
 	})
 	w.Write([]byte(post))
+}
+func monit(w http.ResponseWriter, req *http.Request) {
+
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		fmt.Printf("read body err,%v %v\n", err, body)
+		return
+	}
+	orders = bytes.TrimRight(body, "\x00")
+	w.Write([]byte("ok"))
+}
+
+func getorders(w http.ResponseWriter, req *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Write([]byte(orders))
 }
 
 func mt4(w http.ResponseWriter, req *http.Request) {
@@ -130,5 +147,7 @@ func mt4(w http.ResponseWriter, req *http.Request) {
 func main() {
 	http.HandleFunc("/mt5", mt5)
 	http.HandleFunc("/mt4", mt4)
+	http.HandleFunc("/monit", monit)
+	http.HandleFunc("/getorders", getorders)
 	http.ListenAndServe(":80", nil)
 }

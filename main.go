@@ -49,21 +49,6 @@ func mt5(w http.ResponseWriter, req *http.Request) {
 	})
 	w.Write([]byte(post))
 }
-func monit(w http.ResponseWriter, req *http.Request) {
-
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		fmt.Printf("read body err,%v %v\n", err, body)
-		return
-	}
-	orders = bytes.TrimRight(body, "\x00")
-	w.Write([]byte("ok"))
-}
-
-func getorders(w http.ResponseWriter, req *http.Request) {
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Write([]byte(orders))
-}
 
 func mt4(w http.ResponseWriter, req *http.Request) {
 	var to_mt4 string
@@ -142,6 +127,22 @@ func mt4(w http.ResponseWriter, req *http.Request) {
 		})
 	}
 	w.Write([]byte(to_mt4))
+}
+
+func monit(w http.ResponseWriter, req *http.Request) {
+
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		fmt.Printf("read body err,%v %v\n", err, body)
+		return
+	}
+	orders = bytes.TrimRight(body, "\x00")
+	w.Write([]byte("ok"))
+}
+
+func getorders(w http.ResponseWriter, req *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Write([]byte(orders))
 }
 
 func main() {

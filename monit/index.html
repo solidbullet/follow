@@ -46,7 +46,7 @@
 				  <td>{{ x[6]}}</td>
 				  <td>{{ x[7] }}</td>
 				  <td>{{ x[8]}}</td>
-				  <td>{{ x[9]}}</td>
+				  <td>EA开单</td>
 				</tr>
 
 			  </tbody>
@@ -81,7 +81,7 @@
 				  <td>{{ x[6]}}</td>
 				  <td>{{ x[7] }}</td>
 				  <td>{{ x[8]}}</td>
-				  <td>{{ x[9]}}</td>
+				  <td>EA开单</td>
 				</tr>
 
 			  </tbody>
@@ -123,8 +123,8 @@
 			{
 				if(temp[i][2] == "0") temp[i][2] = "BUY";
 				else if(temp[i][2] == "1")  temp[i][2] = "SELL";
-				if(temp[i][9] == "0") temp[i][9] = "手动开单";
-				else  temp[i][9] = "EA开单";
+				//if(temp[i][9] == "0") temp[i][9] = "手动开单";
+				//else  temp[i][9] = "EA开单";
 				$scope.orders.push(temp[i]);		
 			}
 			for(let i = 0;i < hisorders.length-1;i++)
@@ -138,8 +138,8 @@
 			{
 				if(his_temp[i][2] == "0") his_temp[i][2] = "BUY";
 				else if(his_temp[i][2] == "1")  his_temp[i][2] = "SELL";
-				if(his_temp[i][9] == "0") his_temp[i][9] = "手动开单";
-				else  his_temp[i][9] = "EA开单";
+				//if(his_temp[i][9] == "0") his_temp[i][9] = "手动开单";
+				//else  his_temp[i][9] = "EA开单";
 				$scope.hisorders.push(his_temp[i]);		
 			}
 		  });//end for http.get

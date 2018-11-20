@@ -26,17 +26,18 @@ func mt5(w http.ResponseWriter, req *http.Request) {
 	}
 	post := bytes.TrimRight(body, "\x00")
 	sc := strings.Split(string(post), ",")
-	//12345,XAUUSD,0,0,0.02,1.1234,2.2345,88,mt4ticket,pos_id
+	//12345,XAUUSD,0,0,0.02,1.1234,2.2345,88,mt4ticket,pos_id,accountid
 	ticket := sc[0]
 	info := sc[1:]
 	entry := sc[2]
 	t_type := sc[3]
 	magic := sc[7]
 	pos_id := sc[9]
+	account_id := sc[10]
 	//cond_in:多单买入单和空单买入单
 	cond_in := (entry == IN && t_type == BUY && magic == BUYMAGIC) || (entry == IN && t_type == SELL && magic == SELLMAGIC) || (entry == IN && magic == "0")
 
-	if cond_in {
+	if cond_in && !No_auth(account_id) {
 		Eain.Store(ticket, info)
 	}
 	Eain.Range(func(k, v interface{}) bool {

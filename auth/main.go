@@ -169,7 +169,7 @@ func No_auth(accountid string) bool {
 		fmt.Println("hget failed", err.Error())
 	} else {
 
-		ret = (Byte2Int(res.([]byte))-48 == 0)
+		ret = (Byte2Int(res.([]byte))-48 == 1)
 	}
 	return ret
 }

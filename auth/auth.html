@@ -40,7 +40,7 @@
 		$scope.toggle = function() {
 			$scope.auth = !$scope.auth;
 			auth_num = ($scope.auth)?0:1;
-			url = "http://127.0.0.1:8080/save?account=" + $scope.account+"&auth=" + auth_num;
+			url = "http://127.0.0.1:8888/save?account=" + $scope.account+"&auth=" + auth_num;
 			console.log(url);
 				$http.get(url).
 					success(function(data) {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-      <title>MT4跟单--权限管理</title>
+      <title>权限管理</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
       <!-- 引入 Bootstrap -->
       <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -15,15 +15,18 @@
 	  <script src="https://cdn.staticfile.org/angular.js/1.4.6/angular.min.js"></script>
     </head>
     <body>
-    <div class = "container" ng-app="myApp" ng-controller="siteCtrl">
-		<hr>
-		<form>
-			账户名称: <input type="text" ng-model="account">
-			<div class="checkbox">
-			<label><input type="checkbox" ng-checked="auth"  ng-click="toggle()">禁止开单</label>
-			</div>
-			
-		</form>
+    <div class = "container" ng-app="myApp" ng-controller="siteCtrl" ng-init="Accounts=[50022817,1003664,1004159];auth=[false,false,false]">
+		<div class="page-header">
+			<h1>权限控制
+				<small>跟单系统</small>
+			</h1>
+		</div>
+		<table class="table">
+		  <tr ng-repeat="account in Accounts">
+			<td><input type="text" value="{{account}}"></td>
+			<td><label><input type="checkbox" ng-checked="auth[$index]"  ng-click="toggle(account,$index)">禁止开单</label></td>
+		  </tr>
+		</table>
 		
 	</div>
       <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
@@ -35,12 +38,10 @@
     <script>
 	var app = angular.module('myApp', []);
 	app.controller('siteCtrl', function($scope, $http,$interval) {
-		$scope.account = "50022817";
-		$scope.auth = false;
-		$scope.toggle = function() {
-			$scope.auth = !$scope.auth;
-			auth_num = ($scope.auth)?0:1;
-			url = "http://127.0.0.1:8888/save?account=" + $scope.account+"&auth=" + auth_num;
+		$scope.toggle = function(account,i) {
+			$scope.auth[i] = !$scope.auth[i];
+			auth_num = ($scope.auth[i])?1:0;
+			url = "http://127.0.0.1:8888/save?account=" + account+"&auth=" + auth_num;
 			console.log(url);
 				$http.get(url).
 					success(function(data) {

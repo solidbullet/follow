@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
     <head>
       <title>权限管理</title>
@@ -41,7 +41,7 @@
 		$scope.toggle = function(account,i) {
 			$scope.auth[i] = !$scope.auth[i];
 			auth_num = ($scope.auth[i])?1:0;
-			url = "http://127.0.0.1:8888/save?account=" + account+"&auth=" + auth_num;
+			url = "http://hiiboy.com:8888/save?account=" + account+"&auth=" + auth_num;
 			console.log(url);
 				$http.get(url).
 					success(function(data) {

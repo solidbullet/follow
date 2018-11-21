@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"sync"
-
-	"github.com/garyburd/redigo/redis"
 )
 
 const IN, OUT, BUY, SELL, BUYMAGIC, SELLMAGIC string = "0", "1", "0", "1", "888", "999"
@@ -26,18 +24,17 @@ func mt5(w http.ResponseWriter, req *http.Request) {
 	}
 	post := bytes.TrimRight(body, "\x00")
 	sc := strings.Split(string(post), ",")
-	//12345,XAUUSD,0,0,0.02,1.1234,2.2345,88,mt4ticket,pos_id,accountid
+	//12345,XAUUSD,0,0,0.02,1.1234,2.2345,88,mt4ticket,pos_id
 	ticket := sc[0]
 	info := sc[1:]
 	entry := sc[2]
 	t_type := sc[3]
 	magic := sc[7]
 	pos_id := sc[9]
-	account_id := sc[10]
 	//cond_in:多单买入单和空单买入单
 	cond_in := (entry == IN && t_type == BUY && magic == BUYMAGIC) || (entry == IN && t_type == SELL && magic == SELLMAGIC) || (entry == IN && magic == "0")
 
-	if cond_in && !No_auth(account_id) {
+	if cond_in {
 		Eain.Store(ticket, info)
 	}
 	Eain.Range(func(k, v interface{}) bool {
@@ -51,21 +48,6 @@ func mt5(w http.ResponseWriter, req *http.Request) {
 		return true
 	})
 	w.Write([]byte(post))
-}
-func monit(w http.ResponseWriter, req *http.Request) {
-
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		fmt.Printf("read body err,%v %v\n", err, body)
-		return
-	}
-	orders = bytes.TrimRight(body, "\x00")
-	w.Write([]byte("ok"))
-}
-
-func getorders(w http.ResponseWriter, req *http.Request) {
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Write([]byte(orders))
 }
 
 func mt4(w http.ResponseWriter, req *http.Request) {
@@ -147,39 +129,26 @@ func mt4(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte(to_mt4))
 }
 
+func monit(w http.ResponseWriter, req *http.Request) {
+
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		fmt.Printf("read body err,%v %v\n", err, body)
+		return
+	}
+	orders = bytes.TrimRight(body, "\x00")
+	w.Write([]byte("ok"))
+}
+
+func getorders(w http.ResponseWriter, req *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Write([]byte(orders))
+}
+
 func main() {
 	http.HandleFunc("/mt5", mt5)
 	http.HandleFunc("/mt4", mt4)
 	http.HandleFunc("/monit", monit)
 	http.HandleFunc("/getorders", getorders)
 	http.ListenAndServe(":80", nil)
-}
-
-func No_auth(accountid string) bool {
-	var ret bool = false
-	c, err := redis.Dial("tcp", "127.0.0.1:6379")
-	if err != nil {
-		fmt.Println("connect to redis err", err.Error())
-		return false
-	}
-	defer c.Close()
-	res, err := c.Do("hget", "user", accountid)
-	//fmt.Println(reflect.TypeOf(res))
-	if err != nil {
-		fmt.Println("hget failed", err.Error())
-	} else {
-
-		ret = (Byte2Int(res.([]byte))-48 == 1)
-	}
-	return ret
-}
-
-func Byte2Int(data []byte) int {
-	var ret int = 0
-	var len int = len(data)
-	var i uint = 0
-	for i = 0; i < uint(len); i++ {
-		ret = ret | (int(data[i]) << (i * 8))
-	}
-	return ret
 }

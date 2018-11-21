@@ -15,16 +15,16 @@
 	  <script src="https://cdn.staticfile.org/angular.js/1.4.6/angular.min.js"></script>
     </head>
     <body>
-    <div class = "container" ng-app="myApp" ng-controller="siteCtrl" ng-init="Accounts=[50022817,1003664,1004159];auth=[false,false,false]">
+    <div class = "container" ng-app="myApp" ng-controller="siteCtrl" ng-init="">
 		<div class="page-header">
 			<h1>权限控制
 				<small>跟单系统</small>
 			</h1>
 		</div>
 		<table class="table">
-		  <tr ng-repeat="account in Accounts">
-			<td><input type="text" value="{{account}}"></td>
-			<td><label><input type="checkbox" ng-checked="auth[$index]"  ng-click="toggle(account,$index)">禁止开单</label></td>
+		  <tr ng-repeat="(key,value) in Accounts">
+			<td><input type="text" value="{{key}}"></td>
+			<td><label><input type="checkbox" ng-checked="value"  ng-click="toggle(key,value)">禁止开单</label></td>
 		  </tr>
 		</table>
 		
@@ -38,10 +38,22 @@
     <script>
 	var app = angular.module('myApp', []);
 	app.controller('siteCtrl', function($scope, $http,$interval) {
-		$scope.toggle = function(account,i) {
-			$scope.auth[i] = !$scope.auth[i];
-			auth_num = ($scope.auth[i])?1:0;
-			url = "http://hiiboy.com:8888/save?account=" + account+"&auth=" + auth_num;
+		$http.get("http://127.0.0.1:8888/redis").
+		success(function(data) {
+			for (attr in data) {
+				if(data[attr] == "0") data[attr] = false;
+				else data[attr] = true;
+			}
+			$scope.Accounts = data;
+		}).
+		error(function(err) {
+			//错误代码
+		});
+	
+		$scope.toggle = function(account,authority) {
+			auth_num = (authority)?0:1;
+			$scope.Accounts[account] = !authority;
+			url = "http://127.0.0.1:8888/save?account=" + account+"&auth=" + auth_num;
 			console.log(url);
 				$http.get(url).
 					success(function(data) {

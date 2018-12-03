@@ -15,7 +15,8 @@ const IN, OUT, BUY, SELL, BUYMAGIC, SELLMAGIC string = "0", "1", "0", "1", "888"
 
 var Eain sync.Map  //存放mt5发送过来的买入或者卖出单子
 var Eaout sync.Map //存放mt5发送过来的买入或者卖出单子
-var orders []byte
+
+var currency, gold, oil string
 
 func mt5(w http.ResponseWriter, req *http.Request) {
 
@@ -34,6 +35,7 @@ func mt5(w http.ResponseWriter, req *http.Request) {
 	magic := sc[7]
 	pos_id := sc[9]
 	account_id := sc[10]
+	//fmt.Printf("%t: ", account_id)
 	//cond_in:多单买入单和空单买入单
 	cond_in := (entry == IN && t_type == BUY && magic == BUYMAGIC) || (entry == IN && t_type == SELL && magic == SELLMAGIC) || (entry == IN && magic == "0")
 
@@ -53,19 +55,49 @@ func mt5(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte(post))
 }
 func monit(w http.ResponseWriter, req *http.Request) {
-
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		fmt.Printf("read body err,%v %v\n", err, body)
 		return
 	}
-	orders = bytes.TrimRight(body, "\x00")
-	w.Write([]byte("ok"))
+	post := string(bytes.TrimRight(body, "\x00"))
+	num := strings.LastIndex(post, "@")
+	accountid := post[num+1 : len(post)]
+	//fmt.Println(accountid == "227211") // 3
+	if accountid == "227211" {
+		currency = post
+	}
+	if accountid == "227325" {
+		gold = post
+	}
+	if accountid == "1004423" {
+		oil = post
+	}
+	w.Write([]byte("monit"))
 }
 
 func getorders(w http.ResponseWriter, req *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	w.Write([]byte(orders))
+	err := req.ParseForm()
+	if err != nil {
+		panic(err)
+	}
+	accountid := req.Form.Get("accountid")
+	//fmt.Println(accountid) // 3
+	//currency = "waihui"
+	//gold = "huangjin"
+	//oil = "yuanyou"
+	//w.Header().Add("Access-Control-Allow-Origin", "*")
+	if accountid == "227211" {
+		w.Write([]byte(currency))
+		//fmt.Println(currency)
+	} else if accountid == "227325" {
+		w.Write([]byte(gold))
+	} else if accountid == "1004423" {
+		w.Write([]byte(oil))
+	} else {
+		w.Write([]byte("accountid no exist"))
+	}
 }
 
 func mt4(w http.ResponseWriter, req *http.Request) {
@@ -168,7 +200,7 @@ func No_auth(accountid string) bool {
 	if err != nil {
 		fmt.Println("hget failed", err.Error())
 	} else {
-
+		//fmt.Println(res)
 		ret = (Byte2Int(res.([]byte))-48 == 1)
 	}
 	return ret

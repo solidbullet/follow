@@ -96,8 +96,8 @@ void OnTimer()
       }
       
       
-      resp = StringConcatenate(profits,"@",orders,"@",hisOrders,"@",equity,"@",balance);
-      //Print(hisOrders);
+      resp = StringConcatenate(profits,"@",orders,"@",hisOrders,"@",equity,"@",balance,"@",AccountInfoInteger(ACCOUNT_LOGIN));
+      Print(hisOrders);
       
       send(resp,"http://www.hiiboy.com/monit");
   }
@@ -116,7 +116,7 @@ string send(string data,string url)
    if(res==-1) 
      { 
       Print("Error in WebRequest. Error code  =",GetLastError()); 
-      MessageBox("Add the address '"+url+"' to the list of allowed URLs on tab 'Expert Advisors'","Error",MB_ICONINFORMATION); 
+      //MessageBox("Add the address '"+url+"' to the list of allowed URLs on tab 'Expert Advisors'","Error",MB_ICONINFORMATION); 
      } 
    else 
      { 

@@ -19,14 +19,18 @@
 			font-family:"Times New Roman";
 			font-size:20px;
 		}
+		h2
+		{
+			color:red
+		}
 		</style>
    </head>
    <body>
    <div class = "container" ng-app="myApp" ng-controller="siteCtrl">
    <H2>实盘帐户展示</H2>
    <ul class="nav nav-tabs">
-	<li class="active"><a href="#"><span class="glyphicon glyphicon-user"></span>帐户1(外汇)</a></li>
-	<li><a href="/gold.html">帐户2(黄金)</a></li>
+	<li><a href="/">帐户1(外汇)</a></li>
+	<li class="active"><a href="#"><span class="glyphicon glyphicon-user"></span>帐户2(黄金)</a></li>
 	<li><a href="/oil.html">帐户3(原油)</a></li>
    </ul>
 	<h3>帐户净值: {{equity}} <small>   帐户余额: {{balance}}</small><small>   初始入金: 10000</small></h3>
@@ -111,7 +115,7 @@
 	var app = angular.module('myApp', []);
 	app.controller('siteCtrl', function($scope, $http,$interval) {
 	  $interval(function(){
-		$http.get("http://www.hiiboy.com/getorders?accountid=227211")
+		$http.get("http://www.hiiboy.com/getorders?accountid=227325")
 		  .success(function (response) {
 			//data = response.slice(0,-1);
 			data = response.split("@");

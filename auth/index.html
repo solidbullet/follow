@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html>
+   <head>
+      <title>MT4跟单监视系统</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" charset="utf-8">
+      <!-- 引入 Bootstrap -->
+      <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+ 
+      <!-- HTML5 Shiv 和 Respond.js 用于让 IE8 支持 HTML5元素和媒体查询 -->
+      <!-- 注意： 如果通过 file://  引入 Respond.js 文件，则该文件无法起效果 -->
+      <!--[if lt IE 9]>
+         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+         <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+      <![endif]-->
+	  <script src="https://cdn.staticfile.org/angular.js/1.4.6/angular.min.js"></script>
+	  <style>
+		ul li a
+		{
+			font-family:"Times New Roman";
+			font-size:20px;
+		}
+		</style>
+   </head>
+   <body>
+   <div class = "container" ng-app="myApp" ng-controller="siteCtrl">
+   <H2>实盘帐户展示</H2>
+   <ul class="nav nav-tabs">
+	<li class="active"><a href="#"><span class="glyphicon glyphicon-user"></span>帐户1(外汇)</a></li>
+	<li><a href="/gold.html">帐户2(黄金)</a></li>
+	<li><a href="/oil.html">帐户3(原油)</a></li>
+   </ul>
+	<h3>帐户净值: {{equity}} <small>   帐户余额: {{balance}}</small><small>   初始入金: 10000</small></h3>
+
+		<div>
+			<table class="table table-striped">
+			  <caption><strong class="text-danger">当前持仓总利润为: {{profits}}</strong></caption>
+			  <thead>
+				<tr>
+				  <th>订单号</th>
+				  <th>开仓时间</th>
+				  <th>类型</th>
+				  <th>手数</th>
+				  <th>交易品种</th>
+				  <th>价格</th>
+				  <th>止损</th>
+				  <th>止盈</th>
+				  <th>利润</th>
+				  <th>开单方式</th>	  
+				</tr>
+			  </thead>
+			  <tbody>
+				<tr ng-repeat="x in orders">
+				  <td>{{ x[0] }}</td>
+				  <td>{{ x[1] }}</td>
+				  <td>{{ x[2] }}</td>
+				  <td>{{ x[3] }}</td>
+				  <td>{{ x[4]}}</td>
+				  <td>{{ x[5]}}</td>
+				  <td>{{ x[6]}}</td>
+				  <td>{{ x[7] }}</td>
+				  <td>{{ x[8]}}</td>
+				  <td>EA开单</td>
+				</tr>
+
+			  </tbody>
+			</table>
+		</div>
+		
+		<div>
+			<table class="table table-striped">
+			  <caption><strong class="text-danger">12小时内历史单</strong></caption>
+			  <thead>
+				<tr>
+				  <th>订单号</th>
+				  <th>平仓时间</th>
+				  <th>类型</th>
+				  <th>手数</th>
+				  <th>交易品种</th>
+				  <th>价格</th>
+				  <th>止损</th>
+				  <th>止盈</th>
+				  <th>利润</th>
+				  <th>开单方式</th>	  
+				</tr>
+			  </thead>
+			  <tbody>
+				<tr ng-repeat="x in hisorders">
+				  <td>{{ x[0] }}</td>
+				  <td>{{ x[1] }}</td>
+				  <td>{{ x[2] }}</td>
+				  <td>{{ x[3] }}</td>
+				  <td>{{ x[4]}}</td>
+				  <td>{{ x[5]}}</td>
+				  <td>{{ x[6]}}</td>
+				  <td>{{ x[7] }}</td>
+				  <td>{{ x[8]}}</td>
+				  <td>EA开单</td>
+				</tr>
+
+			  </tbody>
+			</table>
+		</div>
+	</div>
+      <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
+      <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+      <!-- 包括所有已编译的插件 -->
+      <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+   </body>
+   
+    <script>
+	var app = angular.module('myApp', []);
+	app.controller('siteCtrl', function($scope, $http,$interval) {
+	  $interval(function(){
+		$http.get("http://www.hiiboy.com/getorders")
+		  .success(function (response) {
+			//data = response.slice(0,-1);
+			data = response.split("@");
+			$scope.profits = data[0] //利润总额
+			orders = data[1].split(";");
+			hisorders = data[2].split(";");
+			$scope.equity = data[3] //净值
+			$scope.balance = data[4] //余额	
+			//console.log(data[2]);
+			$scope.orders =[];
+			$scope.hisorders =[];
+			temp = [];
+			his_temp = [];
+			for(let i = 0;i < orders.length-1;i++)
+			{
+				arr = orders[i].split(",").map(function (val) { 
+				return val;  
+				});			
+				temp.push(arr);				
+			}
+			for(let i = 0;i < temp.length;i++)
+			{
+				if(temp[i][2] == "0") temp[i][2] = "BUY";
+				else if(temp[i][2] == "1")  temp[i][2] = "SELL";
+				//if(temp[i][9] == "0") temp[i][9] = "手动开单";
+				//else  temp[i][9] = "EA开单";
+				$scope.orders.push(temp[i]);		
+			}
+			for(let i = 0;i < hisorders.length-1;i++)
+			{
+				his_arr = hisorders[i].split(",").map(function (val) { 
+				return val;  
+				});			
+				his_temp.push(his_arr);				
+			}
+			for(let i = 0;i < his_temp.length;i++)
+			{
+				if(his_temp[i][2] == "0") his_temp[i][2] = "BUY";
+				else if(his_temp[i][2] == "1")  his_temp[i][2] = "SELL";
+				//if(his_temp[i][9] == "0") his_temp[i][9] = "手动开单";
+				//else  his_temp[i][9] = "EA开单";
+				$scope.hisorders.push(his_temp[i]);		
+			}
+		  });//end for http.get
+
+	  },800)// end for interval
+
+	  
+	});
+	</script>
+</html>

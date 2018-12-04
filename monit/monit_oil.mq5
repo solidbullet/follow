@@ -55,7 +55,8 @@ void OnTimer()
       string profits = DoubleToString(AccountInfoDouble(ACCOUNT_PROFIT),2);
       //double profits;
       int total = PositionsTotal();
-      string ticket,type,symbol,price,sl,tp,profit,magic,lots,time;
+      ulong ticket,deal_ticket;
+      string type,symbol,price,sl,tp,profit,magic,lots,time;
       string hticket,htype,hsymbol,hprice,hsl,htp,hprofit,hmagic,hlots,htime;
       for(int i =0;i<total;i++)
       {
@@ -91,22 +92,24 @@ void OnTimer()
          string horder;
          if((ticket=HistoryOrderGetTicket(i))>0)
          {
-            
-            
+            deal_ticket= HistoryDealGetTicket(i);
+            //Print("deal: ",deal_ticket," order: ",ticket);
+            if(HistoryDealGetInteger(deal_ticket,DEAL_ENTRY) == DEAL_ENTRY_IN) continue;
             hticket = IntegerToString(HistoryOrderGetInteger(ticket,ORDER_TICKET));
             
             htime=  TimeToString((datetime)(HistoryOrderGetInteger(ticket,ORDER_TIME_SETUP)+60*60*6)); 
             hsymbol = HistoryOrderGetString(ticket,ORDER_SYMBOL);
-            htype=  HistoryOrderGetInteger(ticket,ORDER_TYPE);
-            hlots = HistoryOrderGetDouble(ticket,ORDER_VOLUME_INITIAL);
-            hprice=  HistoryOrderGetDouble(ticket,ORDER_PRICE_OPEN); 
-            hsl = HistoryOrderGetDouble(ticket,ORDER_SL);
-            htp = HistoryOrderGetDouble(ticket,ORDER_TP);
-            hprofit = "";
-            hmagic=  HistoryOrderGetInteger(ticket,ORDER_MAGIC);
             int digit = SymbolInfoInteger(hsymbol,SYMBOL_DIGITS);
-            StringConcatenate(horder,hticket,",",htime,",",IntegerToString(htype),",",DoubleToString(hlots,2),",",hsymbol,",",DoubleToString(hprice,digit),",",DoubleToString(hsl,digit),",",DoubleToString(htp,digit),",",hprofit,",",IntegerToString(hmagic)); 
+            htype=  (int)!HistoryOrderGetInteger(ticket,ORDER_TYPE);
+            hlots = DoubleToString(HistoryOrderGetDouble(ticket,ORDER_VOLUME_INITIAL),2);
+            hprice=  HistoryOrderGetDouble(ticket,ORDER_PRICE_CURRENT); 
+            hsl = DoubleToString(HistoryOrderGetDouble(ticket,ORDER_SL),digit);
+            htp = DoubleToString(HistoryOrderGetDouble(ticket,ORDER_TP),digit);
+            hprofit = DoubleToString(HistoryDealGetDouble(deal_ticket,DEAL_PROFIT)+HistoryDealGetDouble(deal_ticket,DEAL_SWAP)+HistoryDealGetDouble(deal_ticket,DEAL_COMMISSION),2);
+            hmagic=  HistoryOrderGetInteger(ticket,ORDER_MAGIC);
             
+            StringConcatenate(horder,hticket,",",htime,",",htype,",",hlots,",",hsymbol,",",hprice,",",hsl,",",htp,",",hprofit,",",hmagic); 
+           
          }
          
          StringAdd(hisOrders,horder);
@@ -117,6 +120,7 @@ void OnTimer()
       //Print(hisOrders);
       
       StringConcatenate(resp,profits,"@",orders,"@",hisOrders,"@",equity,"@",balance,"@",AccountInfoInteger(ACCOUNT_LOGIN));
+      //StringConcatenate(resp,profits,"@",hisOrders,"@",equity,"@",balance,"@",AccountInfoInteger(ACCOUNT_LOGIN));
       //StringConcatenate(resp,profits,"@",orders,"@",hisOrders,"@",equity,"@",balance,"@","1004423");
       //Print(resp);
       

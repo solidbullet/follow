@@ -8,7 +8,7 @@ const fs= require("fs");
 //创建服务器
 const server = http.createServer(function(req,res){
 	const client = redis.createClient(6379, '127.0.0.1');
-	client.auth('pass',function(err, reply) {
+	client.auth('810302',function(err, reply) {
 	 console.log(reply);
 	});
 	end = req.url.indexOf("?");

@@ -5,7 +5,13 @@ const redis = require('redis')
 var request = require('request');
 var crypto = require('crypto');
 var util = require('util');
+//引入文件模块
 const fs= require("fs");
+var zmq = require('zeromq')
+  , sock = zmq.socket('pub');
+
+
+sock.bindSync('tcp://*:3000');
 //创建服务器
 const server = http.createServer(function(req,res){
 	const client = redis.createClient(6379, '127.0.0.1');
@@ -22,6 +28,21 @@ const server = http.createServer(function(req,res){
 			//加载的数据结束
 			res.end(data)
 		})
+	}else if(req.url == "/mt5"){
+
+		if (req.method === 'POST') {
+			var body = '';
+			req.on('data', chunk => {
+				body += chunk.toString(); // convert Buffer to string
+			});
+			req.on('end', () => {
+				//var postBody = JSON.stringify(body);
+				console.log(body);
+				sock.send(body);
+				
+				res.end('send to mt4 ok');
+			});
+		}	
 	}else if(req.url == "/auth" || req.url=="/draw.html"){
 			fs.readFile("auth.html",function(err,data){
 				//设置响应头
